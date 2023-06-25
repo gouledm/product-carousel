@@ -1,4 +1,6 @@
 import React from 'react'
+import Image from 'next/image';
+
 
 interface ProductProps {
   id: number;
@@ -9,7 +11,7 @@ interface ProductProps {
 
 const Product: React.FC<ProductProps> = ({ id, name, price, image }) => { // Handles the product card
   return (
-    <div className='rounded-lg p-1 h-full'>
+    <div className='rounded-lg h-full'>
       <div>
         <img src={image} alt={name} className='h-96 w-full object-cover'/>
       </div>

@@ -1,8 +1,7 @@
-"use client";
 import React, { useState, useEffect } from 'react'
-import Image from 'next/image';
 import Product  from './product';
 import { Data } from '../common/data';
+import { IoIosArrowDroprightCircle, IoIosArrowDropleftCircle } from 'react-icons/io';
 
 interface CarouselProps{
   products: Data[];
@@ -15,9 +14,9 @@ export default function Carousel(props: CarouselProps) {
     const sliderContainer = React.useRef<HTMLDivElement>(null);
     const slider = React.useRef<HTMLUListElement>(null);
     const [cardWidth, setCardWidth] = useState(475);
-    const [elementToShow, setElementToShow] = useState(4); // Handles the number of elements to show in the carousel 
+    const [selectedProduct, setselectedProduct] = useState(4); // Handles the number of products to show in the carousel 
   
-    let lastWidth = 0;
+    let lastWidth = 0; //Keeps track of the last width so that the page doesn't reload when the screen width doesn't change
     let cards = slider.current?.getElementsByTagName('li') as HTMLCollectionOf<HTMLLIElement>;
 
     if (null !== cards && cards != undefined) { 
@@ -35,43 +34,43 @@ export default function Carousel(props: CarouselProps) {
         }
     }
 
-    function prev() { // Handles the previous button
+    function next() { // Handles the previous button
         if (null != slider.current && (cards != undefined)) {
-            if (+slider.current.style?.marginLeft.slice(0, -2) != -cardWidth * (cards.length - elementToShow))
+            if (+slider.current.style?.marginLeft.slice(0, -2) != -cardWidth * (cards.length - selectedProduct))
                 slider.current.style.marginLeft = ((+slider.current.style?.marginLeft.slice(0, -2)) - cardWidth) + "px"; 
         }
     }
 
-    function next() { // Handles the next button
+    function prev() { // Handles the next button
         if (null != slider.current && (cards != undefined)) {
             if (+slider.current.style?.marginLeft.slice(0, -2) != 0)
                 slider.current.style.marginLeft = ((+slider.current.style?.marginLeft.slice(0, -2)) + cardWidth) + "px";  
         }
     }
 
-    const updateNumImages = () => { // Handles the number of elements to show in the carousel
+    function updateNumImages() { // Handles the number of elements to show in the carousel
       const currentWidth = window.innerWidth;
       //console.log("screen width ", currentWidth);
       if (currentWidth < 640) { 
-        setElementToShow(1);
+        setselectedProduct(1);
         if(lastWidth != currentWidth){ // Reloads the page when the screen width changes
           window.location.reload();
         }       
       } 
-      else if (currentWidth < 1024) { 
-        setElementToShow(2);
-        if(lastWidth != currentWidth){
-          window.location.reload();
-        }
-      } 
-      else if (currentWidth < 1280) {
-        setElementToShow(3);
-        if(lastWidth != currentWidth){
-          window.location.reload();
-        }
-      } 
+      // else if (currentWidth < 1024) { 
+      //   setselectedProduct(2);
+      //   if(lastWidth != currentWidth){
+      //     window.location.reload();
+      //   }
+      // } 
+      // else if (currentWidth < 1280) {
+      //   setselectedProduct(3);
+      //   if(lastWidth != currentWidth){
+      //     window.location.reload();
+      //   }
+      // } 
       else {
-        setElementToShow(4);
+        setselectedProduct(4);
         if(lastWidth != currentWidth){
           window.location.reload();
         }     
@@ -81,17 +80,17 @@ export default function Carousel(props: CarouselProps) {
 
     useEffect(() => { 
         if(sliderContainer.current){
-            console.log("client width ", sliderContainer.current.clientWidth)
-            setCardWidth(sliderContainer.current.clientWidth / elementToShow);               
+            //console.log("client width ", sliderContainer.current.clientWidth)
+            setCardWidth(sliderContainer.current.clientWidth / selectedProduct);               
         }
         window.addEventListener('resize', updateNumImages); // Event listener for the window resize
         lastWidth = window.innerWidth; 
         updateNumImages();     
         return () => window.removeEventListener('resize', updateNumImages);
-    }, [sliderContainer, elementToShow]);
+    }, [sliderContainer, selectedProduct]);
 
     return ( //Buttons, carousel, and titles
-      <div >
+      <div data-testid='carousel'>
         <div className='flex flex-col'>
           <div className='flex flex-col items-center py-8'>
             <h1 className='text-xl italic text-black'>{props.title}</h1>
@@ -100,7 +99,7 @@ export default function Carousel(props: CarouselProps) {
           <div className='flex mt-32'>
                 <div className='w-2/12 flex items-center'>
                     <div className='w-full text-right'>
-                        <button onClick={next} className='p-3 rounded-full bg-white border border-gray-100 shadow-lg mr-5'> {'<'} </button>
+                        <button data-testid='prev' onClick={prev} className='text-4xl'><IoIosArrowDropleftCircle/></button>
                     </div>
                 </div>
                 <div id="sliderContainer" className='w-10/12 overflow-hidden' ref={sliderContainer}> 
@@ -111,13 +110,12 @@ export default function Carousel(props: CarouselProps) {
                                     <Product id={product.id} name={product.name} price={product.price} image={product.image} />         
                                 </div>                                
                             </li>
-
                         ))}
                     </ul>
                 </div>
-                <div className='w-2/12 flex items-center '>
+                <div className='w-2/12 flex items-center'>
                     <div className='w-full'>
-                        <button onClick={prev} className='p-3 rounded-full bg-white border border-gray-100 shadow-lg ml-5'> {'>'} </button>
+                        <button data-testid='next' onClick={next} className='text-4xl'><IoIosArrowDroprightCircle/></button>
                     </div>
                 </div>
           </div>
